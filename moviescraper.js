@@ -14,11 +14,12 @@ var title,
 	length_array = [],
 	content_rating,
 	content_rating_array = [],
+	movies_objects_array = [],
 	push = true;
 
 console.log(scrape_url);
 
-getCSV('movies.csv', function(err,data){
+getCSV('New Movies.csv', function(err,data){
 	request(scrape_url, function(err, response, body){
 		if (!err && response.statusCode == 200){
 			var $ = cheerio.load(body);
@@ -53,14 +54,21 @@ getCSV('movies.csv', function(err,data){
 			console.log(title_array);
 			console.log(length_array);
 			console.log(content_rating_array);
+			write_file();
 		} else {
 			console.log('We have encountered ' + err);
 		}
 	});
 });
 
+function write_file(){
+    var ws_new_movies = fs.createWriteStream('New Movies');
+    csv.
+    write(movies_objects_array, {headers:true}).pipe(ws_new_movies);
+}
 
 
 
+//create movie_objects_array
 
 
