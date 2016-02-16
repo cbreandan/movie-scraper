@@ -9,7 +9,7 @@ require('./date.js');
 var date = new Date().toString('M/d/yyyy');
 
 var movies_url = 'http://www.cineplex.com/Showtimes/any-movie/cineplex-cinemas-yongeeglinton-and-vip-formerly-silvercity?Date=' + date;
-var top_box_office_url = 'http://www.cineplex.com/';
+var top_box_office_url = 'http://www.rottentomatoes.com/';
 
 var title,
 	length,
@@ -54,20 +54,24 @@ getCSV('New Movies.csv', function(err,data){
 			//Adding a row with heading Box Office and Amount
 			movies_objects_array.push({
 				Movie_Title: 'Box Office',
-				Length: 'Amount'
+				Length: 'Rating',
+				Content_Rating: 'Amount'
 			});
 
 			request(top_box_office_url, function(err, response, body){
 				if (!err && response.statusCode == 200){
 					var $ = cheerio.load(body);
-					$('.box-office li').each(function(index, items){
-						var movie = $(items).find('.label').text();
+					$('#homepage-top-box-office tr').each(function(index, items){
+						var movie = $(items).find('.middle_col').text();
 						//console.log(movie);
-						var amount = $(items).find('.price').text();
+						var rating = $(items).find('.tMeterIcon').text();
+						//console.log(rating);
+						var amount = $(items).find('.right_col').text();
 						//console.log(amount);
 						movies_objects_array.push({
 							Movie_Title: movie,
-							Length: amount
+							Length: rating,
+							Content_Rating: amount
 						});
 					});
 				} else {
