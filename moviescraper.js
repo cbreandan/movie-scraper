@@ -1,26 +1,26 @@
 var request = require('request'),
 	cheerio = require('cheerio'),
 	getCSV = require('./getcsv'),
-	fs = require('fs');
+	fs = require('fs'),
+	csv = require('fast-csv');
 
 
 require('./date.js');
 var date = new Date().toString('M/d/yyyy');
 
-var scrape_url = 'http://www.cineplex.com/Showtimes/any-movie/cineplex-odeon-eglinton-town-centre-cinemas?Date=' + date;
+var movies_url = 'http://www.cineplex.com/Showtimes/any-movie/cineplex-cinemas-yongeeglinton-and-vip-formerly-silvercity?Date=' + date;
+var top_box_office_url = 'http://www.cineplex.com/';
+
 var title,
-	title_array = [],
 	length,
-	length_array = [],
 	content_rating,
-	content_rating_array = [],
 	movies_objects_array = [],
 	push = true;
 
-console.log(scrape_url);
+console.log(movies_url);
 
 getCSV('New Movies.csv', function(err,data){
-	request(scrape_url, function(err, response, body){
+	request(movies_url, function(err, response, body){
 		if (!err && response.statusCode == 200){
 			var $ = cheerio.load(body);
 			$('.no-page-break-inside').each(function(index, items){
@@ -40,21 +40,42 @@ getCSV('New Movies.csv', function(err,data){
 				if (push == false){
 
 				} else {
-					title_array.push(title);
-
 					length = $(items).find('meta[itemprop="duration"]').attr("content");
-					length_array.push(length);
-
 					content_rating = $(items).find('meta[itemprop="contentRating"]').attr("content");
-					content_rating_array.push(content_rating);
+					movies_objects_array.push({
+						Movie_Title: title,
+						Length: length,
+						Content_Rating: content_rating,
+					});
 				}
-
 				push = true;
 			});
-			console.log(title_array);
-			console.log(length_array);
-			console.log(content_rating_array);
-			write_file();
+			
+			//Adding a row with heading Box Office and Amount
+			movies_objects_array.push({
+				Movie_Title: 'Box Office',
+				Length: 'Amount'
+			});
+
+			request(top_box_office_url, function(err, response, body){
+				if (!err && response.statusCode == 200){
+					var $ = cheerio.load(body);
+					$('.box-office li').each(function(index, items){
+						var movie = $(items).find('.label').text();
+						//console.log(movie);
+						var amount = $(items).find('.price').text();
+						//console.log(amount);
+						movies_objects_array.push({
+							Movie_Title: movie,
+							Length: amount
+						});
+					});
+				} else {
+					console.log('We have encountered ' + err);
+				}
+				console.log(movies_objects_array);
+				write_file();
+			});
 		} else {
 			console.log('We have encountered ' + err);
 		}
@@ -62,13 +83,11 @@ getCSV('New Movies.csv', function(err,data){
 });
 
 function write_file(){
-    var ws_new_movies = fs.createWriteStream('New Movies');
+    var ws_new_movies = fs.createWriteStream('New Movies.csv');
     csv.
-    write(movies_objects_array, {headers:true}).pipe(ws_new_movies);
+    write(movies_objects_array, {headers:true}).pipe(ws_new_movies);  
 }
 
 
-
-//create movie_objects_array
 
 
