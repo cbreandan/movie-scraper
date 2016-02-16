@@ -14,6 +14,7 @@ var top_box_office_url = 'http://www.rottentomatoes.com/';
 var title,
 	length,
 	content_rating,
+	trailer,
 	movies_objects_array = [],
 	push = true;
 
@@ -42,10 +43,12 @@ getCSV('New Movies.csv', function(err,data){
 				} else {
 					length = $(items).find('meta[itemprop="duration"]').attr("content");
 					content_rating = $(items).find('meta[itemprop="contentRating"]').attr("content");
+					trailer = 'https://www.youtube.com/results?search_query=' + title;
 					movies_objects_array.push({
 						Movie_Title: title,
 						Length: length,
 						Content_Rating: content_rating,
+						Trailer: trailer
 					});
 				}
 				push = true;
@@ -54,7 +57,7 @@ getCSV('New Movies.csv', function(err,data){
 			//Adding a row with heading Box Office and Amount
 			movies_objects_array.push({
 				Movie_Title: 'Box Office',
-				Length: 'Rating',
+				Length: 'Rating On rottentomatoes',
 				Content_Rating: 'Amount'
 			});
 
@@ -72,6 +75,30 @@ getCSV('New Movies.csv', function(err,data){
 							Movie_Title: movie,
 							Length: rating,
 							Content_Rating: amount
+						});
+					});
+
+					//Adding an empty row
+					movies_objects_array.push({
+						Movie_Title: '',
+						Length: ''
+					});
+					//Adding a row with heading Coming Soon and Date
+					movies_objects_array.push({
+						Movie_Title: 'Coming Soon',
+						Length: 'Release Date'
+					});
+
+					$('#homepage-opening-this-week .sidebarInTheaterOpening').each(function(index, items){
+						var movie = $(items).find('.middle_col').text();
+						//console.log(movie);
+						var release_date = $(items).find('.right_col').text();
+						//console.log(release_date);
+						trailer = 'https://www.youtube.com/results?search_query=' + movie;
+						movies_objects_array.push({
+							Movie_Title: movie,
+							Length: release_date,
+							Trailer: trailer
 						});
 					});
 				} else {
