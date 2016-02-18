@@ -18,6 +18,8 @@ var title,
 	movies_objects_array = [],
 	push = true;
 
+
+
 console.log(movies_url);
 
 getCSV('New Movies.csv', function(err,data){
@@ -28,6 +30,7 @@ getCSV('New Movies.csv', function(err,data){
 				title = $(items).find('a.movie-details-link-click').text();
 				title = title.trim(' ');
 				console.log(title);
+
 
 				for(var i=0; i<data.length; i++){
 					if (data[i].title == title){
@@ -53,12 +56,34 @@ getCSV('New Movies.csv', function(err,data){
 				}
 				push = true;
 			});
-			
-			//Adding a row with heading Box Office and Amount
+
+			//Adding a row with heading Movies and Show Time
 			movies_objects_array.push({
-				Movie_Title: 'Box Office',
-				Length: 'Rating On rottentomatoes',
-				Content_Rating: 'Amount'
+				Movie_Title: 'Movies',
+				Length: 'Show Time'
+			});
+
+			var cineplex_movie_name = 'kung-fu-panda-3'
+			var cineplex_movie_url = 'http://www.cineplex.com/Showtimes/'+ cineplex_movie_name +'/cineplex-cinemas-yongeeglinton-and-vip-formerly-silvercity?Date=2/19/2016';
+			request(cineplex_movie_url, function(err,response,body){
+				var $ = cheerio.load(body);
+				$('.showtime--list li').each(function(index, items){
+					showtime = $(items).find('.showtime').text();
+					movies_objects_array.push({
+						Length: showtime
+					});
+				});
+				//Adding an empty row
+				movies_objects_array.push({
+					Movie_Title: '',
+					Length: ''
+				});
+				//Adding a row with heading Box Office and Amount
+				movies_objects_array.push({
+					Movie_Title: 'Box Office',
+					Length: 'Rating On rottentomatoes',
+					Content_Rating: 'Amount'
+				});
 			});
 
 			request(top_box_office_url, function(err, response, body){
@@ -100,11 +125,10 @@ getCSV('New Movies.csv', function(err,data){
 							Length: release_date,
 							Trailer: trailer
 						});
-					});
+					});	
 				} else {
 					console.log('We have encountered ' + err);
 				}
-				console.log(movies_objects_array);
 				write_file();
 			});
 		} else {
