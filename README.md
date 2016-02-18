@@ -5,7 +5,7 @@ Technologies used: Node.js, jQuery
 Automatically scrapes new movies from website daily and add them to an excel spreadsheet
 
 
-**Box office -- To see which movies are doing better than others
+**Box office -- Movies in theatres
 
 **Show time, Length, Content rating, YouTube trailer, Rotten Tomato ratings -- Movies in theatres 
 
